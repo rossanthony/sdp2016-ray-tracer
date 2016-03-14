@@ -1,4 +1,4 @@
-name := "ray-tracer"
+name := "sdp2016-ray-tracer"
 
 version := "1.0"
 
