@@ -15,7 +15,7 @@ Either run from IntelliJ via the TraceMain method, or enter `sbt run` in the ter
 
 ### Progress so far
 
-The two main “Actor” classes, in this folder: [/src/main/scala/com.mildlyskilled/actor/](/tree/master/src/main/scala/com.mildlyskilled/actor/) have been implemented.
+The two main “Actor” classes, in this folder: [/src/main/scala/com/mildlyskilled/actor/](/tree/master/src/main/scala/com/mildlyskilled/actor/) have been implemented.
 
 The CoordinatorActor is the main Actor which is started in TraceMain (line 31) when the app is run...
 
@@ -46,7 +46,7 @@ Then the following is lastly run in TraceMain (line 37)...
     scene.traceImage(width, height)
 ```
 
-The traceImage method, line 74 of the [Scene class](/tree/master/src/main/scala/com.mildlyskilled/Scene.scala), has been modified to loop over the rows in the image and send a ProcessRow message back to the CoordinatorActor. This then spawns a new TracerActor and passes through the scene object etc, it then sends each row off to the TracerActor router to be distributed to one of the available worker Actors.
+The traceImage method, line 74 of the [Scene class](/tree/master/src/main/scala/com/mildlyskilled/Scene.scala), has been modified to loop over the rows in the image and send a ProcessRow message back to the CoordinatorActor. This then spawns a new TracerActor and passes through the scene object etc, it then sends each row off to the TracerActor router to be distributed to one of the available worker Actors.
 
 The TracerActor receives messages from the CoordinatorActor, currently one message per row. It then loops over the pixels in the row and performs the calculations. A SetColor message is then sent back to the Coordinator so it can append the pixel to the image buffer and decrements the ‘waiting’ var, which keeps track of the number of pixels waiting to the processed.
 
@@ -56,7 +56,7 @@ The very last message sent to SetColor in the CoordinatorActor will then trigger
 
 1. Try dividing up the tasks given to the TracerActor into smaller chunks. This might increase the efficiency if each worker is dealing with a smaller piece of work. Currently each worker deals with one row at a time, so as the image is 600 pixels high by 800 wide, we end up with 600 jobs distributed around the workers (each with 800 pixels to be processed).  Perhaps each row could be sub-divided into pixels and the TracerActor worker then just deals with one pixel at a time?
 
-2. Write some Tests for the Actors: the existing tests can be run with “set test” from the project root folder. I haven’t added any additional tests yet, the pre-existing ones still run and all pass. There is a class called ActorHarness added by Kwabena Kaning, under /src/test/scala/com.mildlyskilled/harness/. This seems to be a starting point for writing tests for the Actors.
+2. Write some Tests for the Actors: the existing tests can be run with “set test” from the project root folder. I haven’t added any additional tests yet, the pre-existing ones still run and all pass. There is a class called ActorHarness added by Kwabena Kaning, under /src/test/scala/com/mildlyskilled/harness/. This seems to be a starting point for writing tests for the Actors.
 
 3. Investigate the best approach for Actor Routing: the TracerActor is currently using the “BalancingPool” router, I also tried the SmallestMailbox router, but didn't notice any significant improvement in speed.
 
