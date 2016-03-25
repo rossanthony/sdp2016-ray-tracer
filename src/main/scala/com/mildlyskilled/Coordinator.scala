@@ -1,10 +1,10 @@
 package com.mildlyskilled
 
 /**
-  * See: CoordinatorActor for Actor version of this class
+  * See: CoordinatorActor for our Actor version of this object
   */
-/*
 
+/*
 object Coordinator {
   def init(im: Image, of: String) = {
     image = im

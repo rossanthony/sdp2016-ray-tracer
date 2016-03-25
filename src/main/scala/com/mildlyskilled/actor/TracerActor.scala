@@ -1,7 +1,7 @@
 package com.mildlyskilled.actor
 
 import akka.actor.{ActorLogging, Actor}
-import com.mildlyskilled._
+import com.mildlyskilled.{Color, Scene, Ray, Vector}
 import com.mildlyskilled.protocol.CoordinatorProtocol.SetColor
 
 /**

@@ -1,11 +1,7 @@
-import akka.actor.{Props, ActorSystem}
 import com.mildlyskilled._
 import com.mildlyskilled.actor.CoordinatorActor
 import akka.actor.{Props, ActorSystem}
-import akka.pattern.ask
 import com.mildlyskilled.protocol.CoordinatorProtocol.StartUp
-import scala.concurrent.ExecutionContext.Implicits.global
-
 
 object TraceMain extends App {
   val width = 800
@@ -24,10 +20,10 @@ object TraceMain extends App {
     val system = ActorSystem("coordinatorActor")
     val coordinatorActor = system.actorOf(Props(new CoordinatorActor(outfile, image)), "coordinatorActor")
 
-    // Tell the CoordinatorActor to start up and
-    coordinatorActor ! StartUp
+    // Tell the CoordinatorActor to start up
+    coordinatorActor ! StartUp(debug = true)
 
-    // Initialize the Scene with the ActorRef for the Coordinator
+    // Initialize the Scene by sending the ActorRef for the CoordinatorActor
     scene.init(coordinatorActor)
 
     // Kick off the ray tracing...

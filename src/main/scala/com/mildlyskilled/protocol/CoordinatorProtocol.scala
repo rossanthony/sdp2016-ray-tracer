@@ -19,7 +19,7 @@ object CoordinatorProtocol {
   sealed trait Message
 
   // Messages that can be received by the CoordinatorActor
-  case object StartUp extends Message
+  case class StartUp(debug: Boolean) extends Message
   case class SetColor(x: Int, y: Int, c: Color) extends Message
   case class ProcessRow(row: Int, height: Int, width: Int, scene: Scene) extends Message
 

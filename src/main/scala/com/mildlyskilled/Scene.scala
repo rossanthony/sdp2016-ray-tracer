@@ -53,7 +53,7 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
   // Anti-aliasing parameter -- divide each pixel into sub-pixels and
   // average the results to get smoother images.
   val ss = t.AntiAliasingFactor
-  val ambient = .2f
+  val ambient = .2f // controls the brightness
   val background = Color.black
   val eye = Vector.origin
   val angle = 90f // viewing angle
