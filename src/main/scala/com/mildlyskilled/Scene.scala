@@ -1,8 +1,7 @@
 package com.mildlyskilled
 
 import akka.actor.ActorRef
-import com.mildlyskilled.protocol.CoordinatorProtocol.{ProcessRow}
-;
+import com.mildlyskilled.protocol.CoordinatorProtocol.ProcessRow
 
 
 object Scene {
