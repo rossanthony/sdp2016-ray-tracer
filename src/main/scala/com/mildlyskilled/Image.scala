@@ -5,6 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 //TODO parameterise the image writer perhaps
+
 class Image(val width: Int, val height: Int) {
   val im = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 

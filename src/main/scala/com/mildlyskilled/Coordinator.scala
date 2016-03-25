@@ -1,10 +1,9 @@
 package com.mildlyskilled
 
 /**
-  * TODO
-  * Make this an actor and write a message handler for at least the
-  * set method.
+  * See: CoordinatorActor for Actor version of this class
   */
+/*
 
 object Coordinator {
   def init(im: Image, of: String) = {
@@ -29,3 +28,5 @@ object Coordinator {
     image.print(outfile)
   }
 }
+
+*/

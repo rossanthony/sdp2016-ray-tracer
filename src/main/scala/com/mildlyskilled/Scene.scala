@@ -1,5 +1,10 @@
 package com.mildlyskilled
 
+import akka.actor.ActorRef
+import com.mildlyskilled.protocol.CoordinatorProtocol.ProcessRow
+;
+
+
 object Scene {
 
   import java.io.{FileReader, LineNumberReader}
@@ -40,61 +45,39 @@ object Scene {
   }
 }
 
-class Scene private(val objects: List[Shape], val lights: List[Light]) {
+class Scene(val objects: List[Shape], val lights: List[Light]) {
 
-  private def this(p: (List[Shape], List[Light])) = this(p._1, p._2)
+  def this(p: (List[Shape], List[Light])) = this(p._1, p._2)
 
   val t = new Trace
+  // Anti-aliasing parameter -- divide each pixel into sub-pixels and
+  // average the results to get smoother images.
+  val ss = t.AntiAliasingFactor
   val ambient = .2f
   val background = Color.black
-
   val eye = Vector.origin
   val angle = 90f // viewing angle
   //val angle = 180f // fisheye
 
+  val frustum = (.5 * angle * math.Pi / 180).toFloat
+
+  val cosf = math.cos(frustum)
+  val sinf = math.sin(frustum)
+
+  var coordinatorActor: ActorRef = null
+
+  // Allow setting of the ActorRef for the Coordinator from TraceMain
+  def init(actorReference: ActorRef) = {
+    coordinatorActor = actorReference
+  }
+
   def traceImage(width: Int, height: Int) {
 
-    val frustum = (.5 * angle * math.Pi / 180).toFloat
-
-    val cosf = math.cos(frustum)
-    val sinf = math.sin(frustum)
-
-    // Anti-aliasing parameter -- divide each pixel into sub-pixels and
-    // average the results to get smoother images.
-    val ss = t.AntiAliasingFactor
-
-    // TODO:
-    // Create a parallel version of this loop, creating one actor per pixel or per row of
-    // pixels.  Each actor should send the Coordinator messages to set the
-    // color of a pixel.  The actor need not receive any messages.
-
-    for (y <- 0 until height) {
-      for (x <- 0 until width) {
-
-        // This loop body can be sequential.
-        var colour = Color.black
-
-        for (dx <- 0 until ss) {
-          for (dy <- 0 until ss) {
-
-            // Create a vector to the pixel on the view plane formed when
-            // the eye is at the origin and the normal is the Z-axis.
-            val dir = Vector(
-              (sinf * 2 * ((x + dx.toFloat / ss) / width - .5)).toFloat,
-              (sinf * 2 * (height.toFloat / width) * (.5 - (y + dy.toFloat / ss) / height)).toFloat,
-              cosf.toFloat).normalized
-
-            val c = trace(Ray(eye, dir)) / (ss * ss)
-            colour += c
-          }
-        }
-
-        if (Vector(colour.r, colour.g, colour.b).norm < 1)
-          t.darkCount += 1
-        if (Vector(colour.r, colour.g, colour.b).norm > 1)
-          t.lightCount += 1
-
-        Coordinator.set(x, y, colour)
+    (0 until height).par foreach {
+      row: Int  => {
+        // Send message back to the CoordinatorActor, it will then
+        // spawn a new TracerActor to process the row
+        coordinatorActor ! ProcessRow(row, height, width, this)
       }
     }
   }
