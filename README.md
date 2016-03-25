@@ -69,18 +69,18 @@ The very last message sent to SetColor in the CoordinatorActor will then trigger
 
 Results from running on my macbook, which has 4 cores...
 
-| numWorkers | Runtime(s) |
-| - | -                            |
-|1	|		3252ms, 3854ms, 3232ms |
-|2	|		2113ms, 2370ms, 2214ms |
-|3	|		2041ms, 1897ms, 1789ms |
-|4	|		1885ms, 1908ms, 1533ms |
-|5	|		1527ms, 1682ms, 2015ms |
-|6	|		2247ms, 1496ms, 1640ms |
-|7	|		1771ms, 1867ms, 2017ms |
-|8	|		1849ms, 1672ms, 2115ms |
-|9	|		1817ms, 2099ms, 2210ms |
-|10 |		1959ms, 2380ms, 1640ms |
+|numWorkers|Runtime(s)|
+|---|------------------------|
+|1	| 3252ms, 3854ms, 3232ms |
+|2	| 2113ms, 2370ms, 2214ms |
+|3	| 2041ms, 1897ms, 1789ms |
+|4	| 1885ms, 1908ms, 1533ms |
+|5	| 1527ms, 1682ms, 2015ms |
+|6	| 2247ms, 1496ms, 1640ms |
+|7	| 1771ms, 1867ms, 2017ms |
+|8	| 1849ms, 1672ms, 2115ms |
+|9	| 1817ms, 2099ms, 2210ms |
+|10 | 1959ms, 2380ms, 1640ms |
 
 For some reason results seem to vary quite a bit, so it will be best to take averages when comparing different approaches to routing and the issue of whether to divide up the work into smaller chunks.
 
