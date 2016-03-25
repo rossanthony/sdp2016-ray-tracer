@@ -1,7 +1,7 @@
 package com.mildlyskilled
 
 import akka.actor.ActorRef
-import com.mildlyskilled.protocol.CoordinatorProtocol.ProcessRow
+import com.mildlyskilled.protocol.CoordinatorProtocol.{ProcessRow}
 ;
 
 
@@ -72,12 +72,11 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
   }
 
   def traceImage(width: Int, height: Int) {
-
     (0 until height).par foreach {
       row: Int  => {
         // Send message back to the CoordinatorActor, it will then
         // spawn a new TracerActor to process the row
-        coordinatorActor ! ProcessRow(row, height, width, this)
+        coordinatorActor ! ProcessRow(row)
       }
     }
   }

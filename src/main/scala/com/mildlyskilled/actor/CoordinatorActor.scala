@@ -1,6 +1,8 @@
 package com.mildlyskilled.actor
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ActorRef, Actor, ActorLogging, Props}
+import akka.routing.BalancingPool       // attempts to distribute work evenly between Actors
+import akka.routing.SmallestMailboxPool // sends messages to the Actor with the fewest messages in its mailbox.
 import com.mildlyskilled.{Image, Color, Scene}
 import com.mildlyskilled.protocol.CoordinatorProtocol._
 
@@ -14,6 +16,7 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
   var start: Long = 0
   var duration: Long = 0
   var debugOutput: Boolean = false
+  var tracerRouter: ActorRef = null
 
   def init(im: Image, of: String, debug: Boolean) = {
     image = im
@@ -24,8 +27,12 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
   }
 
   def receive = {
-    case StartUp(debug: Boolean) => {
+    case StartUp(debug: Boolean, numWorkers: Int, height: Int, width: Int, scene: Scene) => {
       this.init(img, outputFile, debug)
+      tracerRouter = context.actorOf(
+        Props(new TracerActor(scene, height, width)).withRouter(BalancingPool(numWorkers)),
+        "tracerRouter"
+      )
       duration = System.currentTimeMillis - start
       if (debugOutput) log.info(s"Starting up the Coordinator Actor, time elapsed: ${duration}ms, pixels to be processed: $waiting")
     }
@@ -43,12 +50,10 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
       }
     }
 
-    case ProcessRow(row: Int, height: Int, width: Int, scene: Scene) => {
-      // Spawn a new TracerActor to handle this particular row of pixels
-      val tracer = context.actorOf(Props(new TracerActor(scene, height, width)), "tracer" + row)
-      if (debugOutput) log.info(s"Processing row: $row")
-      // Send the tracer a message to start working on the row
-      tracer ! row
+    case ProcessRow(row: Int) => {
+      // Send the tracer router a message to start working on this row
+      //if (debugOutput) log.info(s"Processing row: $row")
+      tracerRouter ! row
     }
 
     case x => log.warning("Received unknown message: {}", x)
