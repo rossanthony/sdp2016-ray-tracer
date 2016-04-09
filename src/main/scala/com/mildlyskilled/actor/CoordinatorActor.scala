@@ -55,6 +55,9 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
       //if (debugOutput) log.info(s"Processing row: $row")
       tracerRouter ! row
     }
+    case ProcessRectangle(rect: com.mildlyskilled.Rectangle)=>{
+      tracerRouter ! rect
+    }
 
     case x => log.warning("Received unknown message: {}", x)
   }

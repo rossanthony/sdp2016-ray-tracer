@@ -9,6 +9,9 @@ object TraceMain extends App {
   val height = 600
   val debug = true
   val numWorkers = 4 // No speed/efficiency increase noticeable above number of cores on available CPU
+  val traceByRow = false;
+  val rectWidth = width/2;
+  var rectHeight = 1;
 
   val (infile, outfile) = ("src/main/resources/input.dat", "output.png")
   val scene = FileReader.parse(infile)
@@ -34,6 +37,10 @@ object TraceMain extends App {
     scene.init(coordinatorActor)
 
     // Kick off the ray tracing...
-    scene.traceImage(width, height)
+    if(traceByRow)
+      scene.traceImage(width,height);
+    else
+    //trace by rectangle
+      scene.traceImage(width, height, rectWidth,rectHeight);
   }
 }

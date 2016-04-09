@@ -1,7 +1,7 @@
 package com.mildlyskilled
 
 import akka.actor.ActorRef
-import com.mildlyskilled.protocol.CoordinatorProtocol.ProcessRow
+import com.mildlyskilled.protocol.CoordinatorProtocol.{ProcessRectangle, ProcessRow}
 
 
 object Scene {
@@ -52,7 +52,8 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
   // Anti-aliasing parameter -- divide each pixel into sub-pixels and
   // average the results to get smoother images.
   val ss = t.AntiAliasingFactor
-  val ambient = .2f // controls the brightness
+  val ambient = .2f
+  // controls the brightness
   val background = Color.black
   val eye = Vector.origin
   val angle = 90f // viewing angle
@@ -72,10 +73,34 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
 
   def traceImage(width: Int, height: Int) {
     (0 until height).par foreach {
-      row: Int  => {
+      row: Int => {
         // Send message back to the CoordinatorActor, it will then
         // spawn a new TracerActor to process the row
         coordinatorActor ! ProcessRow(row)
+      }
+    }
+  }
+
+  def traceImage(width: Int, height: Int, squareSide: Int): Unit = {
+      traceImage(width,height,squareSide,squareSide);
+  }
+
+  def traceImage(width: Int, height: Int, rectWidth: Int, rectHeight: Int): Unit = {
+    var w = rectWidth;
+    var h = rectHeight;
+    if (w > width) w = width;
+    if (h > height) h = height;
+    val maxX = (width / w);
+    var offSetX = width - maxX * w;
+    val maxY = (height / h);
+    var offSetY = height - maxY * h;
+    for (i <- 0 until maxX) {
+      for (j <- 0 until maxY) {
+        var width = w;
+        var height = h;
+        if (i == maxX - 1) width += offSetX;
+        if (j == maxY - 1) height += offSetY;
+        coordinatorActor ! ProcessRectangle(Rectangle(i * w, j * h, width, height));
       }
     }
   }
@@ -140,7 +165,7 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
   def reflected(v: Vector, N: Vector): Vector = v - (N * 2.0f * (v dot N))
 
   def intersections(ray: Ray) = objects.flatMap {
-    o => o.intersect(ray).map { v => (v, o)}
+    o => o.intersect(ray).map { v => (v, o) }
   }
 
   def closestIntersection(ray: Ray) = intersections(ray).sortWith {
