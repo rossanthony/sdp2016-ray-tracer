@@ -21,6 +21,7 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
   def init(im: Image, of: String, debug: Boolean) = {
     image = im
     outfile = of
+
     waiting = im.width * im.height
     start = System.currentTimeMillis
     debugOutput = debug
@@ -30,11 +31,16 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
     case StartUp(debug: Boolean, numWorkers: Int, height: Int, width: Int, scene: Scene) => {
       this.init(img, outputFile, debug)
       tracerRouter = context.actorOf(
-        Props(new TracerActor(scene, height, width)).withRouter(BalancingPool(numWorkers)),
-        "tracerRouter"
-      )
+        Props(new TracerActor(scene, height, width)).withRouter(BalancingPool(numWorkers)),"tracerRouter")
       duration = System.currentTimeMillis - start
       if (debugOutput) log.info(s"Starting up the Coordinator Actor, time elapsed: ${duration}ms, pixels to be processed: $waiting")
+
+      //sends time back to sender
+      if(tracerRouter eq null)
+          sender!"tracerRouter is null"
+      else
+          sender!duration
+
     }
 
     case SetColor(x: Int, y: Int, c: Color) => {
@@ -58,6 +64,7 @@ class CoordinatorActor(outputFile: String, img: Image) extends Actor with ActorL
     case ProcessRectangle(rect: com.mildlyskilled.Rectangle)=>{
       tracerRouter ! rect
     }
+
 
     case x => log.warning("Received unknown message: {}", x)
   }
