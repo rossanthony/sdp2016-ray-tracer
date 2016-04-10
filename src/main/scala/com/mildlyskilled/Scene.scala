@@ -71,7 +71,11 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
     coordinatorActor = actorReference
   }
 
-  def traceImage(width: Int, height: Int) {
+  /**
+   * ProcessRow version
+   * This impl of traceImage is used if `traceByRow` is set to true in TraceMain
+   */
+  def traceImage(width: Int, height: Int): Unit = {
     (0 until height).par foreach {
       row: Int => {
         // Send message back to the CoordinatorActor, it will then
@@ -85,6 +89,11 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
       traceImage(width,height,squareSide,squareSide);
   }
 
+  /**
+   * ProcessRectangle version
+   * This impl of traceImage is used if `traceByRow` is set to false in TraceMain
+   * it splits each row into smaller chunks
+   */
   def traceImage(width: Int, height: Int, rectWidth: Int, rectHeight: Int): Unit = {
     var w = rectWidth;
     var h = rectHeight;
@@ -211,4 +220,3 @@ class Scene(val objects: List[Shape], val lights: List[Light]) {
     }
   }
 }
-
